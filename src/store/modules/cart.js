@@ -1,5 +1,6 @@
 const state = {
-  cartProducts: []
+  cartProducts: JSON.parse(window.localStorage.getItem('cart-products')) || []
+  // cartProducts: []
 }
 const getters = {
   totalCount (state) {
