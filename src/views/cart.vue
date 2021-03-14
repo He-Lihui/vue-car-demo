@@ -11,7 +11,7 @@
       <el-table-column
         width="55">
         <template v-slot:header>
-          <el-checkbox size="mini">
+          <el-checkbox size="mini" v-model="checkedAll">
           </el-checkbox>
         </template>
         <!--
@@ -23,6 +23,10 @@
           <el-checkbox
             size="mini"
             :value="scope.row.isChecked"
+            @change="updateProductsChecked({
+              prodId: scope.row.id,
+              checked: $event
+            })"
           >
           </el-checkbox>
         </template>
@@ -38,8 +42,11 @@
       <el-table-column
         prop="count"
         label="数量">
-        <template>
-          <el-input-number size="mini"></el-input-number>
+        <template v-slot="scope">
+          <el-input-number size="mini" :value="scope.row.count" @change="updateProducts({
+            prodId: scope.row.id,
+            count: $event
+          })"></el-input-number>
         </template>
       </el-table-column>
       <el-table-column
@@ -54,24 +61,30 @@
       </el-table-column>
     </el-table>
     <div>
-      <p>已选 <span>xxx</span> 件商品，总价：<span>xxx</span></p>
+      <p>已选 <span>{{ checkedCount }}</span> 件商品，总价：<span>{{ checkedPrice.toFixed(2) }}</span></p>
       <el-button type="danger">结算</el-button>
     </div>
   </div>
 </template>
 
 <script>
-
+import { mapState, mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'Cart',
-  data () {
-    return {
-      cartProducts: [
-        { id: 1, title: 'iPad Pro', price: 500.01 },
-        { id: 2, title: 'H&M T-Shirt White', price: 10.99 },
-        { id: 3, title: 'Charli XCX - Sucker CD', price: 19.99 }
-      ]
+  computed: {
+    ...mapState('cart', ['cartProducts']),
+    ...mapGetters('cart', ['checkedCount', 'checkedPrice']),
+    checkedAll: {
+      get () {
+        return this.cartProducts.every(prod => prod.isChecked)
+      },
+      set (value) {
+        this.updateAllProductsChecked(value)
+      }
     }
+  },
+  methods: {
+    ...mapMutations('cart', ['updateAllProductsChecked', 'updateProductsChecked', 'updateProducts'])
   }
 }
 </script>
